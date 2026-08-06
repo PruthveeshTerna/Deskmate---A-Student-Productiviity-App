@@ -10,7 +10,6 @@ const links = [
   { href: '#features', label: 'Features' },
   { href: '#how-it-works', label: 'How it works' },
   { href: '#ai', label: 'AI Learning' },
-  { href: '#pricing', label: 'Pricing' },
   { href: '#faq', label: 'FAQ' },
 ]
 
@@ -25,7 +24,7 @@ export function SiteNav() {
             <GraduationCap className="h-5 w-5" />
           </span>
           <span className="text-lg font-medium tracking-tight text-on-surface">
-            StudySync
+            Deskmate
           </span>
         </Link>
 

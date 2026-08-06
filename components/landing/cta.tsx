@@ -16,7 +16,7 @@ export function Cta() {
           Start studying smarter today
         </h2>
         <p className="relative mx-auto mt-4 max-w-xl text-pretty text-on-primary/90">
-          Join thousands of students using StudySync to plan, study and reach
+          Join thousands of students using Deskmate to plan, study and reach
           their academic goals with AI.
         </p>
         <div className="relative mt-8 flex flex-wrap justify-center gap-3">
@@ -24,12 +24,12 @@ export function Cta() {
             Get Started Free
           </MdLinkButton>
           <MdLinkButton
-            href="#pricing"
+            href="#features"
             variant="text"
             size="lg"
             className="text-on-primary"
           >
-            View Pricing
+            Explore Features
           </MdLinkButton>
         </div>
       </div>

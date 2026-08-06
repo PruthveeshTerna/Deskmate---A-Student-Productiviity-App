@@ -8,7 +8,7 @@ const groups = [
       ['Features', '#features'],
       ['How it works', '#how-it-works'],
       ['AI Learning', '#ai'],
-      ['Pricing', '#pricing'],
+      ['FAQ', '#faq'],
     ],
   },
   {
