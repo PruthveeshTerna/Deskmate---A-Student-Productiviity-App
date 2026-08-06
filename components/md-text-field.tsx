@@ -29,9 +29,9 @@ export function MdTextField({
   const inputType = isPassword ? (show ? 'text' : 'password') : type
 
   return (
-    <div className={`group relative ${className}`}>
+    <div className={`group relative h-14 ${className}`}>
       {leadingIcon && (
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">
+        <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-on-surface-variant">
           {leadingIcon}
         </span>
       )}
@@ -48,7 +48,7 @@ export function MdTextField({
 
       <label
         htmlFor={fieldId}
-        className={`pointer-events-none absolute top-1/2 -translate-y-1/2 bg-surface-container px-1 text-base text-on-surface-variant transition-all duration-150 peer-focus:top-0 peer-focus:text-xs peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs ${
+        className={`pointer-events-none absolute top-1/2 -translate-y-1/2 bg-surface-container px-1 text-base leading-none text-on-surface-variant transition-all duration-150 peer-focus:top-0 peer-focus:text-xs peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs ${
           leadingIcon ? 'left-10 peer-focus:left-3 peer-[:not(:placeholder-shown)]:left-3' : 'left-3'
         }`}
       >
@@ -60,7 +60,7 @@ export function MdTextField({
           type="button"
           onClick={() => setShow((v) => !v)}
           aria-label={show ? 'Hide password' : 'Show password'}
-          className="md-state absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-on-surface-variant"
+          className="absolute inset-y-0 right-2 my-auto grid h-9 w-9 place-items-center rounded-full text-on-surface-variant transition-colors hover:bg-on-surface/8"
         >
           {show ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
