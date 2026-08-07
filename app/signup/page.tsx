@@ -4,8 +4,8 @@ import { AuthShell } from '@/components/auth/auth-shell'
 import { SignupForm } from '@/components/auth/signup-form'
 
 export const metadata: Metadata = {
-  title: 'Sign up · StudySync',
-  description: 'Create your StudySync account and start studying smarter.',
+  title: 'Sign up · DeskMate',
+  description: 'Create your DeskMate account and start studying smarter with AI.',
 }
 
 export default function SignupPage() {

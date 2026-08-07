@@ -30,8 +30,8 @@ export function AuthShell({
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-on-primary">
               <GraduationCap className="h-5 w-5" />
             </span>
-            <span className="text-xl font-medium tracking-tight text-on-surface">
-              StudySync
+            <span className="text-xl font-bold tracking-tight text-on-surface">
+              DeskMate
             </span>
           </Link>
         </div>

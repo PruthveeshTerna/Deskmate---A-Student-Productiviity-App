@@ -2,15 +2,16 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { GraduationCap, Menu, X } from 'lucide-react'
+import { GraduationCap, Menu, Sparkles, X } from 'lucide-react'
 import { MdLinkButton } from './md-button'
 import { ThemeToggle } from './theme-toggle'
 
 const links = [
   { href: '#features', label: 'Features' },
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#ai', label: 'AI Learning' },
+  { href: '#how-it-works', label: 'How It Works' },
+  { href: '#pricing', label: 'Pricing' },
   { href: '#faq', label: 'FAQ' },
+  { href: '/dashboard', label: 'App Demo' },
 ]
 
 export function SiteNav() {
@@ -19,12 +20,12 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-outline-variant/60 bg-surface/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-on-primary">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-primary text-on-primary md-elevation-1">
             <GraduationCap className="h-5 w-5" />
           </span>
-          <span className="text-lg font-medium tracking-tight text-on-surface">
-            Deskmate
+          <span className="text-xl font-bold tracking-tight text-on-surface">
+            DeskMate
           </span>
         </Link>
 
@@ -33,7 +34,7 @@ export function SiteNav() {
             <Link
               key={l.href}
               href={l.href}
-              className="md-state rounded-full px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface"
+              className="md-state rounded-full px-4 py-2 text-sm text-on-surface-variant hover:text-on-surface font-medium"
             >
               {l.label}
             </Link>
@@ -72,7 +73,7 @@ export function SiteNav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="md-state rounded-xl px-4 py-3 text-sm text-on-surface-variant"
+                className="md-state rounded-xl px-4 py-3 text-sm text-on-surface-variant font-medium"
               >
                 {l.label}
               </Link>
@@ -91,3 +92,4 @@ export function SiteNav() {
     </header>
   )
 }
+
