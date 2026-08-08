@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
+from sqlalchemy import text
 
 from config import Config
 from extensions import db, jwt
@@ -10,10 +11,17 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # CORS — allow the Next.js dev server (default port 3000)
+    # CORS
     CORS(
         app,
-        resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:5173"]}},
+        resources={
+            r"/api/*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "http://localhost:5173"
+                ]
+            }
+        },
         supports_credentials=True,
     )
 
@@ -21,9 +29,7 @@ def create_app(config_class=Config):
     db.init_app(app)
     jwt.init_app(app)
 
-    # ---------------------------------------------------------------
     # Health check
-    # ---------------------------------------------------------------
     @app.route("/health")
     def health():
         return jsonify({
@@ -31,6 +37,7 @@ def create_app(config_class=Config):
             "service": "deskmate-backend"
         }), 200
 
+    # Database health check
     @app.route("/health/db")
     def database_health():
         try:
@@ -42,10 +49,18 @@ def create_app(config_class=Config):
                 "sqlalchemy": "working",
                 "database": "connected"
             }), 200
-    
-    # -----------------------------------------------------------------------
+
+        except Exception as e:
+            db.session.rollback()
+
+            return jsonify({
+                "status": "error",
+                "sqlalchemy": "failed",
+                "database": "unavailable",
+                "error": str(e)
+            }), 500
+
     # Register blueprints
-    # -----------------------------------------------------------------------
     from routes.auth import auth_bp
     from routes.tasks import tasks_bp
     from routes.timetable import timetable_bp
@@ -66,18 +81,18 @@ def create_app(config_class=Config):
     app.register_blueprint(ai_notes_bp, url_prefix="/api")
     app.register_blueprint(notifications_bp, url_prefix="/api")
 
-    # Create tables on first request (dev convenience)
+    # Create tables
     with app.app_context():
-        # Import all models so SQLAlchemy sees them
         import models  # noqa: F401
         db.create_all()
 
     return app
 
 
-# ---------------------------------------------------------------------------
-# Dev entry-point:  python app.py
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     application = create_app()
-    application.run(debug=True, port=5000)
+    application.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
