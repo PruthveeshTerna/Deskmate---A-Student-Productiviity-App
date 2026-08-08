@@ -18,7 +18,8 @@ def create_app(config_class=Config):
             r"/api/*": {
                 "origins": [
                     "http://localhost:3000",
-                    "http://localhost:5173"
+                    "http://localhost:5173",
+                    "https://deskmate-a-student-productiviity-g5u0222uw.vercel.app/"
                 ]
             }
         },
