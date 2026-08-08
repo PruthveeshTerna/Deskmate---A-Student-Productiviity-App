@@ -40,7 +40,7 @@ export function WhyChoose() {
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
         <div className="max-w-2xl">
           <p className="text-sm font-medium uppercase tracking-widest text-primary">
-            Why StudySync
+            Why DeskMate
           </p>
           <h2 className="mt-3 text-balance text-3xl font-normal tracking-tight text-on-background sm:text-4xl">
             Built for how students actually work

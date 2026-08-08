@@ -9,9 +9,9 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: 'StudySync — Your Complete Academic Workspace, Powered by AI',
+  title: 'DeskMate — Your Complete Academic Workspace, Powered by AI',
   description:
-    'StudySync is an AI-powered student productivity dashboard to manage tasks, schedules, notes, deadlines and exams — plus generate notes, flashcards, quizzes and personalized study plans.',
+    'DeskMate is an AI-powered student productivity dashboard to manage tasks, schedules, notes, deadlines and exams — plus generate notes, flashcards, quizzes and personalized study plans.',
   keywords: [
     'student productivity',
     'study planner',

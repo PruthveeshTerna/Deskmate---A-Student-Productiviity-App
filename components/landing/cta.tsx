@@ -19,7 +19,7 @@ export function Cta() {
           Join thousands of students using Deskmate to plan, study and reach
           their academic goals with AI.
         </p>
-        <div className="relative mt-8 flex flex-wrap justify-center gap-3">
+        <div className="relative mt-8 ml-45 flex flex-wrap justify-center gap-3">
           <MdLinkButton href="/signup" variant="tonal" size="lg">
             Get Started Free
           </MdLinkButton>

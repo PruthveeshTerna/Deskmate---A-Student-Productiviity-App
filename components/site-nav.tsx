@@ -9,9 +9,9 @@ import { ThemeToggle } from './theme-toggle'
 const links = [
   { href: '#features', label: 'Features' },
   { href: '#how-it-works', label: 'How It Works' },
-  { href: '#pricing', label: 'Pricing' },
+  // { href: '#pricing', label: 'Pricing' },
   { href: '#faq', label: 'FAQ' },
-  { href: '/dashboard', label: 'App Demo' },
+  // { href: '/dashboard', label: 'App Demo' },
 ]
 
 export function SiteNav() {

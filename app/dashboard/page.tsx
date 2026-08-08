@@ -10,9 +10,11 @@ import {
   CheckCircle2,
   Circle,
   Clock,
+  ExternalLink,
   Flame,
   LineChart,
   ListTodo,
+  Pause,
   Play,
   Plus,
   RotateCcw,
@@ -235,21 +237,75 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Pomodoro Focus Timer Card */}
             <div className="rounded-3xl border border-primary/30 bg-gradient-to-b from-surface-container-high to-surface-container p-6 text-center shadow-lg">
-              <div className="flex items-center justify-center gap-2 text-primary mb-3">
-                <Clock className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-widest">Pomodoro Focus Timer</span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 text-primary">
+                  <Clock className="h-5 w-5" />
+                  <span className="text-xs font-bold uppercase tracking-widest">Focus Timer</span>
+                </div>
+                <button
+                  onClick={() => {
+                    window.open(
+                      '/pomodoro',
+                      'DeskMate Pomodoro',
+                      'width=480,height=700,menubar=no,toolbar=no,location=no,status=no,resizable=yes'
+                    )
+                  }}
+                  className="md-state flex items-center gap-1.5 rounded-full bg-surface-variant/80 px-3 py-1.5 text-[10px] font-bold text-on-surface-variant hover:bg-surface-variant transition-colors"
+                  title="Open in separate window"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Pop Out
+                </button>
               </div>
 
-              <div className="my-4 text-5xl font-mono font-black text-on-surface tracking-widest">
-                {formatTime(timerSeconds)}
+              {/* Circular Progress Ring */}
+              <div className="relative mx-auto my-2 h-40 w-40">
+                <svg className="h-full w-full -rotate-90" viewBox="0 0 160 160">
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    fill="none"
+                    stroke="var(--md-sys-color-surface-variant, #e0e0e0)"
+                    strokeWidth="8"
+                  />
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r="70"
+                    fill="none"
+                    stroke="var(--md-sys-color-primary, #6750A4)"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 70}
+                    strokeDashoffset={
+                      2 * Math.PI * 70 * (1 - timerSeconds / 1500)
+                    }
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-4xl font-mono font-black text-on-surface tracking-wider">
+                    {formatTime(timerSeconds)}
+                  </span>
+                  <span className="text-[10px] font-semibold text-on-surface-variant mt-1 uppercase tracking-wider">
+                    Focus Session
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-center gap-3">
+              {/* Controls */}
+              <div className="flex items-center justify-center gap-3 mt-4">
                 <button
                   onClick={() => setIsTimerRunning(!isTimerRunning)}
                   className="md-state flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-xs font-bold text-on-primary md-elevation-1"
                 >
-                  <Play className="h-4 w-4" /> {isTimerRunning ? 'Pause' : 'Start Focus'}
+                  {isTimerRunning ? (
+                    <Pause className="h-4 w-4" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {isTimerRunning ? 'Pause' : 'Start Focus'}
                 </button>
                 <button
                   onClick={() => {
@@ -261,6 +317,15 @@ export default function DashboardPage() {
                 >
                   <RotateCcw className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* Session Info */}
+              <div className="mt-4 flex items-center justify-center gap-4 text-[11px] text-on-surface-variant">
+                <span className="flex items-center gap-1">
+                  <Flame className="h-3.5 w-3.5 text-tertiary" /> 3 sessions today
+                </span>
+                <span>•</span>
+                <span>1h 15m focused</span>
               </div>
             </div>
 
