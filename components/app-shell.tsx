@@ -8,6 +8,7 @@ import {
   BookOpen,
   Calendar,
   CheckSquare,
+  Clock,
   GraduationCap,
   LayoutDashboard,
   LineChart,
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { href: '/tasks', label: 'Tasks', icon: CheckSquare, badge: '4' },
   { href: '/timetable', label: 'Timetable', icon: Calendar, badge: 'Soon' },
   { href: '/analytics', label: 'Analytics', icon: LineChart },
+  { href: '/pomodoro', label: 'Pomodoro', icon: Clock },
   { href: '/notes', label: 'AI Notes & Studio', icon: BookOpen, badge: 'AI' },
 ]
 
@@ -178,13 +180,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-tertiary" />
             </button>
             <ThemeToggle />
-            
             <Link
               href="/login"
               className="hidden sm:inline-flex items-center gap-2 text-xs font-medium px-3.5 py-2 rounded-full bg-surface-container-high text-on-surface hover:bg-surface-variant transition-colors"
             >
-              <User className="h-4 w-4" />
-              Account
+              <User className="h-4 w-4" /> Account
             </Link>
           </div>
         </header>
@@ -193,33 +193,33 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto animate-fade-in pb-24 md:pb-8">
           {children}
         </main>
-      </div>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/60 flex items-center justify-around px-2">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center w-full py-1 text-[11px] font-medium transition-colors ${
-                isActive ? 'text-primary font-bold' : 'text-on-surface-variant'
-              }`}
-            >
-              <span
-                className={`p-1 rounded-full transition-transform ${
-                  isActive ? 'bg-primary-container text-on-primary-container scale-110' : ''
+        {/* Mobile Bottom Navigation Bar */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 bg-surface-container/95 backdrop-blur-xl border-t border-outline-variant/60 flex items-center justify-around px-2">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex flex-col items-center justify-center w-full py-1 text-[11px] font-medium transition-colors ${
+                  isActive ? 'text-primary font-bold' : 'text-on-surface-variant'
                 }`}
               >
-                <Icon className="h-5 w-5" />
-              </span>
-              <span className="mt-0.5">{item.label.split(' ')[0]}</span>
-            </Link>
-          )
-        })}
-      </nav>
+                <span
+                  className={`p-1 rounded-full transition-transform ${
+                    isActive ? 'bg-primary-container text-on-primary-container scale-110' : ''
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="mt-0.5">{item.label.split(' ')[0]}</span>
+              </Link>
+            )
+          })}
+        </nav>
+      </div>
     </div>
   )
 }

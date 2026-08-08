@@ -53,7 +53,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }}></script>
       </head>
       <body className="font-sans antialiased">{children}</body>
     </html>
