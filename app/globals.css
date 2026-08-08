@@ -171,6 +171,97 @@
   }
 }
 
+/* Custom Typography styles for Markdown */
+@layer components {
+  .prose {
+    color: var(--color-on-surface);
+    line-height: 1.75;
+  }
+  .prose p {
+    margin-bottom: 1.25em;
+  }
+  .prose h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin-top: 2em;
+    margin-bottom: 1em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid var(--color-outline-variant);
+  }
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+    margin-top: 1.75em;
+    margin-bottom: 0.75em;
+  }
+  .prose h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+  }
+  .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+    margin-bottom: 1.25em;
+  }
+  .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+    margin-bottom: 1.25em;
+  }
+  .prose li {
+    margin-bottom: 0.5em;
+    color: var(--color-on-surface-variant);
+  }
+  .prose strong {
+    font-weight: 700;
+    color: var(--color-on-surface);
+  }
+  .prose a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .prose a:hover {
+    text-decoration: underline;
+  }
+  .prose blockquote {
+    border-left: 4px solid var(--color-primary);
+    background-color: var(--color-surface-container-low);
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    font-style: italic;
+    color: var(--color-on-surface-variant);
+    margin-bottom: 1.25em;
+  }
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5em;
+  }
+  .prose th {
+    background-color: var(--color-surface-container-high);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 700;
+    border: 1px solid var(--color-outline-variant);
+  }
+  .prose td {
+    padding: 0.75rem;
+    border: 1px solid var(--color-outline-variant);
+  }
+  .prose hr {
+    border-color: var(--color-outline-variant);
+    margin-top: 2em;
+    margin-bottom: 2em;
+    opacity: 0.5;
+  }
+}
+
 /* Custom M3 Animation Keyframes */
 @keyframes fadeIn {
   from { opacity: 0; }

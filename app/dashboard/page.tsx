@@ -23,8 +23,12 @@ import {
   Zap,
 } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
+import { apiGet, apiPut } from '@/lib/api'
+import { useAuth } from '@/lib/auth-context'
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+
   // Pomodoro timer state
   const [timerSeconds, setTimerSeconds] = useState(1500)
   const [isTimerRunning, setIsTimerRunning] = useState(false)
@@ -36,6 +40,72 @@ export default function DashboardPage() {
     { id: 3, text: 'Read Biology Ch. 8 Cellular Respiration', done: false, subject: 'Bio', time: 'Tomorrow' },
     { id: 4, text: 'Draft Macroeconomics Essay Outline', done: false, subject: 'Econ', time: 'In 3 days' },
   ])
+
+  // Streak state
+  const [streak, setStreak] = useState(0)
+  const displayName = user?.name?.split(' ')[0] || 'Alex'
+
+  // Dynamic stats
+  const [focusHours, setFocusHours] = useState(0)
+  const [focusScore, setFocusScore] = useState(0)
+  const [cardsCreated, setCardsCreated] = useState(0)
+  const [upcomingExams, setUpcomingExams] = useState<any[]>([])
+
+  // Fetch real tasks from backend
+  useEffect(() => {
+    apiGet<{ tasks: any[] }>('/api/tasks')
+      .then((data) => {
+        if (data.tasks) {
+          const mapped = data.tasks.slice(0, 4).map((t: any) => ({
+            id: t.id,
+            text: t.title,
+            done: t.completed,
+            subject: t.subject || 'General',
+            time: t.due_date
+              ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : 'No date',
+          }))
+          setTasks(mapped)
+        }
+      })
+      .catch(() => {
+        // Keep fallback data
+      })
+  }, [])
+
+  // Fetch streak & analytics
+  useEffect(() => {
+    apiGet<{ streak: number }>('/api/pomodoro/streak')
+      .then((data) => {
+        if (typeof data.streak === 'number') {
+          setStreak(data.streak)
+        }
+      })
+      .catch(() => {})
+
+    apiGet<{ study_time_by_subject: Record<string, number>, focus_score: number, cards_created: number }>('/api/analytics')
+      .then((data) => {
+        if (data.study_time_by_subject) {
+          const totalMins = Object.values(data.study_time_by_subject).reduce((a, b) => a + b, 0)
+          setFocusHours(Math.round((totalMins / 60) * 10) / 10)
+          if (data.focus_score !== undefined) {
+            setFocusScore(data.focus_score)
+          }
+          if (data.cards_created !== undefined) {
+            setCardsCreated(data.cards_created)
+          }
+        }
+      })
+      .catch(() => {})
+      
+    apiGet<{ entries: any[] }>('/api/timetable')
+      .then((data) => {
+        if (data.entries) {
+           setUpcomingExams(data.entries.slice(0, 2))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
@@ -49,10 +119,22 @@ export default function DashboardPage() {
     }
   }, [isTimerRunning, timerSeconds])
 
-  const toggleTask = (id: number) => {
+  const toggleTask = async (id: number) => {
+    const task = tasks.find((t) => t.id === id)
+    if (!task) return
+
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
     )
+
+    try {
+      await apiPut(`/api/tasks/${id}`, { completed: !task.done })
+    } catch {
+      // Revert on failure
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: task.done } : t))
+      )
+    }
   }
 
   const formatTime = (seconds: number) => {
@@ -69,15 +151,15 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-3 py-1 rounded-full bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5">
-                <Flame className="h-3.5 w-3.5 text-tertiary" /> 14-Day Streak!
+                <Flame className="h-3.5 w-3.5 text-tertiary" /> {streak}-Day Streak!
               </span>
               <span className="text-xs text-on-surface-variant font-medium">Friday, August 7</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-on-surface">
-              Welcome back, Alex! 👋
+              Welcome back, {displayName}! 👋
             </h1>
             <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-              You have 3 tasks due today and an upcoming Midterm in 4 days. Let’s crush it!
+              You have {tasks.filter(t => !t.done).length} tasks due today and an upcoming Midterm in 4 days. Let's crush it!
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -97,8 +179,12 @@ export default function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-wider">Today's Focus</span>
               <Clock className="h-4 w-4 text-primary" />
             </div>
-            <p className="text-2xl font-extrabold text-on-surface">3.5 hrs</p>
-            <p className="text-[11px] text-emerald-600 font-semibold mt-1">↑ +45 mins vs yesterday</p>
+            <p className="text-2xl font-extrabold text-on-surface">{focusHours} hrs</p>
+            {focusHours > 0 ? (
+              <p className="text-[11px] text-emerald-600 font-semibold mt-1">↑ Active study logged</p>
+            ) : (
+              <p className="text-[11px] text-on-surface-variant font-semibold mt-1">Ready to start</p>
+            )}
           </div>
 
           <div className="rounded-2xl border border-outline-variant/60 bg-surface-container p-4">
@@ -124,7 +210,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-wider">Focus Score</span>
               <TrendingUp className="h-4 w-4 text-tertiary" />
             </div>
-            <p className="text-2xl font-extrabold text-on-surface">92 %</p>
+            <p className="text-2xl font-extrabold text-on-surface">{focusScore} %</p>
             <p className="text-[11px] text-primary font-semibold mt-1">Optimal Retention State</p>
           </div>
 
@@ -133,7 +219,7 @@ export default function DashboardPage() {
               <span className="text-xs font-bold uppercase tracking-wider">AI Cards Created</span>
               <BrainCircuit className="h-4 w-4 text-primary" />
             </div>
-            <p className="text-2xl font-extrabold text-on-surface">48</p>
+            <p className="text-2xl font-extrabold text-on-surface">{cardsCreated}</p>
             <p className="text-[11px] text-on-surface-variant mt-1">Ready for study review</p>
           </div>
         </div>
@@ -206,29 +292,33 @@ export default function DashboardPage() {
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-tertiary/30 bg-tertiary-container/30 p-4">
-                  <span className="px-2.5 py-0.5 rounded-full bg-tertiary text-on-tertiary text-[10px] font-bold">
-                    🔥 2 Days Left
-                  </span>
-                  <h3 className="text-sm font-bold text-on-tertiary-container mt-2">
-                    Physics Lab Report #4
-                  </h3>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    Thermodynamics & Heat Transfer analysis
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-secondary/30 bg-secondary-container/30 p-4">
-                  <span className="px-2.5 py-0.5 rounded-full bg-secondary text-on-secondary text-[10px] font-bold">
-                    📅 In 4 Days
-                  </span>
-                  <h3 className="text-sm font-bold text-on-secondary-container mt-2">
-                    Linear Algebra Midterm
-                  </h3>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    Eigenvalues, Matrices & Vector Spaces
-                  </p>
-                </div>
+                {upcomingExams.length > 0 ? (
+                  upcomingExams.map((exam, i) => (
+                    <div key={exam.id} className={`rounded-2xl border p-4 ${
+                      i % 2 === 0 
+                        ? 'border-tertiary/30 bg-tertiary-container/30' 
+                        : 'border-secondary/30 bg-secondary-container/30'
+                    }`}>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                        i % 2 === 0 ? 'bg-tertiary text-on-tertiary' : 'bg-secondary text-on-secondary'
+                      }`}>
+                        📅 {exam.day} {exam.start_time}
+                      </span>
+                      <h3 className={`text-sm font-bold mt-2 ${
+                        i % 2 === 0 ? 'text-on-tertiary-container' : 'text-on-secondary-container'
+                      }`}>
+                        {exam.subject}
+                      </h3>
+                      <p className="text-xs text-on-surface-variant mt-0.5">
+                        Room: {exam.room || 'TBD'}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 text-center py-6 text-on-surface-variant text-sm">
+                    No upcoming deadlines! Enjoy your free time. 🚀
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -338,7 +428,7 @@ export default function DashboardPage() {
                 </h3>
               </div>
               <p className="text-xs text-on-tertiary-container/90 leading-relaxed">
-                "Linear Algebra Midterm is in 4 days. I’ve analyzed your past quiz scores and generated a focused 8-hour review roadmap for Eigenvalues."
+                "Linear Algebra Midterm is in 4 days. I've analyzed your past quiz scores and generated a focused 8-hour review roadmap for Eigenvalues."
               </p>
               <Link
                 href="/notes"

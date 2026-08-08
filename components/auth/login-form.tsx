@@ -7,14 +7,29 @@ import { Lock, Mail } from 'lucide-react'
 import { MdTextField } from '../md-text-field'
 import { MdButton } from '../md-button'
 import { GoogleButton } from './auth-shell'
+import { useAuth } from '@/lib/auth-context'
 
 export function LoginForm() {
   const router = useRouter()
+  const { login } = useAuth()
   const [remember, setRemember] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    router.push('/dashboard')
+    setError('')
+    setLoading(true)
+    try {
+      await login(email, password)
+      router.push('/dashboard')
+    } catch (err: any) {
+      setError(err?.message || 'Login failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -32,12 +47,20 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-outline-variant" />
       </div>
 
+      {error && (
+        <div className="text-xs text-error bg-error-container/40 rounded-lg px-3 py-2 font-medium">
+          {error}
+        </div>
+      )}
+
       <MdTextField
         label="Email"
         type="email"
         autoComplete="email"
         leadingIcon={<Mail className="h-5 w-5" />}
         required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
 
       <MdTextField
@@ -46,6 +69,8 @@ export function LoginForm() {
         autoComplete="current-password"
         leadingIcon={<Lock className="h-5 w-5" />}
         required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
       />
 
       <div className="flex items-center justify-between">
@@ -70,8 +95,8 @@ export function LoginForm() {
         </Link>
       </div>
 
-      <MdButton type="submit" size="lg" className="w-full">
-        Log in to Dashboard →
+      <MdButton type="submit" size="lg" className="w-full" disabled={loading}>
+        {loading ? 'Logging in...' : 'Log in to Dashboard →'}
       </MdButton>
     </form>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   CheckCircle2,
   Circle,
@@ -12,6 +12,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api'
 
 type Task = {
   id: number
@@ -22,71 +23,127 @@ type Task = {
   done: boolean
 }
 
+// Fallback data shown while backend is loading or if user is not logged in
+const FALLBACK_TASKS: Task[] = [
+  {
+    id: 1,
+    title: 'Finish Calculus problem set #5',
+    subject: 'Math',
+    priority: 'High',
+    dueDate: 'Today',
+    done: true,
+  },
+  {
+    id: 2,
+    title: 'Read Biology Chapter 7 & 8',
+    subject: 'Bio',
+    priority: 'Medium',
+    dueDate: 'Tomorrow',
+    done: true,
+  },
+  {
+    id: 3,
+    title: 'Draft History essay outline on Industrial Revolution',
+    subject: 'History',
+    priority: 'High',
+    dueDate: 'Aug 10',
+    done: false,
+  },
+  {
+    id: 4,
+    title: 'Implement Binary Search Tree in C++',
+    subject: 'CS',
+    priority: 'High',
+    dueDate: 'Aug 12',
+    done: false,
+  },
+  {
+    id: 5,
+    title: 'Spanish Vocabulary Deck Review',
+    subject: 'Languages',
+    priority: 'Low',
+    dueDate: 'Aug 14',
+    done: false,
+  },
+]
+
+/** Map backend task shape to frontend shape */
+function mapTask(t: any): Task {
+  return {
+    id: t.id,
+    title: t.title,
+    subject: t.subject || '',
+    priority: (t.priority === 'high' ? 'High' : t.priority === 'medium' ? 'Medium' : 'Low') as Task['priority'],
+    dueDate: t.due_date
+      ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      : 'No date',
+    done: t.completed,
+  }
+}
+
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: 'Finish Calculus problem set #5',
-      subject: 'Math',
-      priority: 'High',
-      dueDate: 'Today',
-      done: true,
-    },
-    {
-      id: 2,
-      title: 'Read Biology Chapter 7 & 8',
-      subject: 'Bio',
-      priority: 'Medium',
-      dueDate: 'Tomorrow',
-      done: true,
-    },
-    {
-      id: 3,
-      title: 'Draft History essay outline on Industrial Revolution',
-      subject: 'History',
-      priority: 'High',
-      dueDate: 'Aug 10',
-      done: false,
-    },
-    {
-      id: 4,
-      title: 'Implement Binary Search Tree in C++',
-      subject: 'CS',
-      priority: 'High',
-      dueDate: 'Aug 12',
-      done: false,
-    },
-    {
-      id: 5,
-      title: 'Spanish Vocabulary Deck Review',
-      subject: 'Languages',
-      priority: 'Low',
-      dueDate: 'Aug 14',
-      done: false,
-    },
-  ])
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [loaded, setLoaded] = useState(false)
 
   const [activeFilter, setActiveFilter] = useState('All')
   const [search, setSearch] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newSubject, setNewSubject] = useState('Math')
   const [newPriority, setNewPriority] = useState<'High' | 'Medium' | 'Low'>('High')
+  const [newDueDate, setNewDueDate] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const toggleTask = (id: number) => {
+  // Fetch tasks from the backend on mount
+  useEffect(() => {
+    apiGet<{ tasks: any[] }>('/api/tasks')
+      .then((data) => {
+        if (data.tasks) {
+          setTasks(data.tasks.map(mapTask))
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        // Not logged in or backend down
+        setLoaded(true)
+      })
+  }, [])
+
+  const toggleTask = async (id: number) => {
+    const task = tasks.find((t) => t.id === id)
+    if (!task) return
+
     setTasks((prev) =>
       prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
     )
+
+    // Sync with backend
+    try {
+      await apiPut(`/api/tasks/${id}`, { completed: !task.done })
+    } catch {
+      // Revert on failure
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: task.done } : t))
+      )
+    }
   }
 
-  const deleteTask = (id: number) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id))
+  const deleteTask = async (id: number) => {
+    const prev = tasks
+    setTasks((t) => t.filter((x) => x.id !== id))
+
+    try {
+      await apiDelete(`/api/tasks/${id}`)
+    } catch {
+      setTasks(prev)
+    }
   }
 
-  const handleAddTask = (e: React.FormEvent) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim()) return
-    const newTask: Task = {
+
+    // Optimistic local add
+    const tempTask: Task = {
       id: Date.now(),
       title: newTitle,
       subject: newSubject,
@@ -94,9 +151,26 @@ export default function TasksPage() {
       dueDate: 'This Week',
       done: false,
     }
-    setTasks([newTask, ...tasks])
+    setTasks([tempTask, ...tasks])
     setNewTitle('')
+    setNewDueDate('')
     setIsModalOpen(false)
+
+    // Persist to backend
+    try {
+      const data = await apiPost<{ task: any }>('/api/tasks', {
+        title: newTitle,
+        subject: newSubject,
+        priority: newPriority.toLowerCase(),
+        due_date: newDueDate ? new Date(newDueDate).toISOString() : null,
+      })
+      // Replace temp task with real one from backend
+      setTasks((prev) =>
+        prev.map((t) => (t.id === tempTask.id ? mapTask(data.task) : t))
+      )
+    } catch {
+      // Keep local task even if backend fails
+    }
   }
 
   const filteredTasks = tasks.filter((t) => {
@@ -135,12 +209,12 @@ export default function TasksPage() {
         <div className="rounded-2xl border border-outline-variant/60 bg-surface-container p-4">
           <div className="flex items-center justify-between text-xs font-bold mb-2">
             <span className="text-on-surface">Overall Completion Rate</span>
-            <span className="text-primary">{completedCount} of {tasks.length} completed ({Math.round((completedCount / tasks.length) * 100)}%)</span>
+            <span className="text-primary">{completedCount} of {tasks.length} completed ({tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0}%)</span>
           </div>
           <div className="w-full h-2 rounded-full bg-surface-variant overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-all duration-300"
-              style={{ width: `${(completedCount / tasks.length) * 100}%` }}
+              style={{ width: `${tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0}%` }}
             />
           </div>
         </div>
@@ -222,6 +296,11 @@ export default function TasksPage() {
                 <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-[10px] font-bold">
                   {t.subject}
                 </span>
+                {t.dueDate && t.dueDate !== 'No date' && (
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-outline-variant/60 text-on-surface-variant text-[10px] font-bold">
+                    📅 {t.dueDate}
+                  </span>
+                )}
                 <button
                   onClick={() => deleteTask(t.id)}
                   className="p-1.5 text-on-surface-variant hover:text-error rounded-full transition-colors"
@@ -292,6 +371,18 @@ export default function TasksPage() {
                     <option value="Low">Low</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant mb-1">
+                  Due Date
+                </label>
+                <input
+                  type="datetime-local"
+                  value={newDueDate}
+                  onChange={(e) => setNewDueDate(e.target.value)}
+                  className="w-full h-11 px-4 rounded-xl border border-outline bg-surface-lowest text-xs text-on-surface outline-none focus:border-primary"
+                />
               </div>
 
               <div className="pt-2 flex justify-end gap-2">

@@ -14,6 +14,7 @@ import {
   Target,
 } from 'lucide-react'
 import { AppShell } from '@/components/app-shell'
+import { apiPost } from '@/lib/api'
 
 type TimerMode = 'focus' | 'shortBreak' | 'longBreak'
 
@@ -47,7 +48,10 @@ function PomodoroTimer({ isPopup }: { isPopup: boolean }) {
           if (prev <= 1) {
             clearInterval(timerRef.current!)
             setIsRunning(false)
-            if (mode === 'focus') setSessions((s) => s + 1)
+            if (mode === 'focus') {
+              setSessions((s) => s + 1)
+              apiPost('/api/pomodoro', { duration_minutes: MODES.focus.duration / 60 }).catch(() => {})
+            }
             return 0
           }
           return prev - 1

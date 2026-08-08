@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState, type ReactNode } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect, type ReactNode } from 'react'
+import { apiGet, apiPut, apiPost } from '@/lib/api'
 import {
   Bell,
   BookOpen,
@@ -20,8 +21,10 @@ import {
   Sun,
   User,
   X,
+  History,
 } from 'lucide-react'
 import { ThemeToggle } from './theme-toggle'
+import { useAuth } from '@/lib/auth-context'
 
 type NavItem = {
   href: string
@@ -32,22 +35,76 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/tasks', label: 'Tasks', icon: CheckSquare, badge: '4' },
-  { href: '/timetable', label: 'Timetable', icon: Calendar, badge: 'Soon' },
+  { href: '/tasks', label: 'Tasks', icon: CheckSquare },
+  { href: '/timetable', label: 'Timetable', icon: Calendar },
   { href: '/analytics', label: 'Analytics', icon: LineChart },
   { href: '/pomodoro', label: 'Pomodoro', icon: Clock },
   { href: '/notes', label: 'AI Notes & Studio', icon: BookOpen, badge: 'AI' },
+  { href: '/past-notes', label: 'Past AI Notes', icon: History },
 ]
+
+type Notification = {
+  id: number
+  title: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await apiGet<Notification[]>('/api/notifications')
+      setNotifications(data)
+    } catch (err) {
+      console.error('Failed to fetch notifications', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [pathname])
+
+  const markAsRead = async (id: number) => {
+    try {
+      await apiPut(`/api/notifications/${id}/read`)
+      setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n))
+    } catch (err) {
+      console.error('Failed to mark as read', err)
+    }
+  }
+
+  const markAllAsRead = async () => {
+    try {
+      await apiPost('/api/notifications/read-all')
+      setNotifications(notifications.map(n => ({ ...n, is_read: true })))
+    } catch (err) {
+      console.error('Failed to mark all as read', err)
+    }
+  }
+
+  const unreadCount = notifications.filter(n => !n.is_read).length
+
+  const displayName = user?.name || 'Alex Student'
+  const initials = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
 
   return (
     <div className="min-h-screen bg-background text-on-background flex flex-col md:flex-row">
       {/* Desktop Navigation Rail / Sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-outline-variant/60 bg-surface-container-low p-4 h-screen sticky top-0">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-outline-variant/60 bg-surface-container-low p-4 h-screen sticky top-0 print:hidden">
         <Link href="/" className="flex items-center gap-3 px-3 py-2 mb-6">
           <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary text-on-primary md-elevation-1">
             <GraduationCap className="h-6 w-6" />
@@ -132,27 +189,27 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="pt-3 border-t border-outline-variant/60 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold">
-              JS
+              {initials}
             </div>
             <div>
-              <p className="text-xs font-medium text-on-surface line-clamp-1">Alex Student</p>
+              <p className="text-xs font-medium text-on-surface line-clamp-1">{displayName}</p>
               <p className="text-[10px] text-on-surface-variant">Pro Plan</p>
             </div>
           </div>
-          <Link
-            href="/login"
+          <button
+            onClick={handleLogout}
             aria-label="Log out"
             className="p-2 text-on-surface-variant hover:text-error hover:bg-error-container/40 rounded-full transition-colors"
           >
             <LogOut className="h-4 w-4" />
-          </Link>
+          </button>
         </div>
       </aside>
 
       {/* Main Content Area with Header */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* Top App Bar */}
-        <header className="sticky top-0 z-40 h-16 border-b border-outline-variant/60 bg-surface/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between">
+        <header className="sticky top-0 z-40 h-16 border-b border-outline-variant/60 bg-surface/80 backdrop-blur-xl px-4 sm:px-6 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-3 md:hidden">
             <Link href="/" className="flex items-center gap-2">
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-on-primary">
@@ -171,14 +228,67 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="relative md-state grid h-10 w-10 place-items-center rounded-full text-on-surface-variant hover:text-on-surface"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-tertiary" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                className="relative md-state grid h-10 w-10 place-items-center rounded-full text-on-surface-variant hover:text-on-surface focus:outline-none"
+                aria-label="Notifications"
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              >
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-error border-2 border-surface" />
+                )}
+              </button>
+
+              {isNotificationsOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-80 rounded-xl bg-surface-container shadow-lg border border-outline-variant z-50 overflow-hidden">
+                    <div className="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                      <h3 className="font-bold text-on-surface">Notifications</h3>
+                      {unreadCount > 0 && (
+                        <button 
+                          onClick={markAllAsRead}
+                          className="text-xs text-primary hover:underline font-medium"
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-on-surface-variant">
+                          No notifications yet.
+                        </div>
+                      ) : (
+                        notifications.map((notif) => (
+                          <div 
+                            key={notif.id} 
+                            onClick={() => {
+                              if (!notif.is_read) markAsRead(notif.id)
+                            }}
+                            className={`p-4 border-b border-outline-variant last:border-0 cursor-pointer transition-colors ${notif.is_read ? 'bg-surface-container hover:bg-surface-container-high' : 'bg-surface-container-highest hover:bg-surface-variant'}`}
+                          >
+                            <div className="flex justify-between items-start gap-2">
+                              <h4 className={`text-sm font-semibold ${notif.is_read ? 'text-on-surface-variant' : 'text-on-surface'}`}>
+                                {notif.title}
+                              </h4>
+                              {!notif.is_read && (
+                                <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary mt-1.5" />
+                              )}
+                            </div>
+                            <p className={`text-xs mt-1 ${notif.is_read ? 'text-outline' : 'text-on-surface-variant'}`}>
+                              {notif.message}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <ThemeToggle />
             <Link
               href="/login"

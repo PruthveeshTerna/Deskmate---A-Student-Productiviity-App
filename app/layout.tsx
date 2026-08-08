@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Roboto } from 'next/font/google'
 import './globals.css'
+import { AuthProvider } from '@/lib/auth-context'
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -55,7 +56,10 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }}></script>
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   )
 }
+
