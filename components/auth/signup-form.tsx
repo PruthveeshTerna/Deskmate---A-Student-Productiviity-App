@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Lock, Mail, User } from 'lucide-react'
 import { MdTextField } from '../md-text-field'
@@ -8,14 +9,22 @@ import { MdButton } from '../md-button'
 import { GoogleButton } from './auth-shell'
 
 export function SignupForm() {
-  const [agree, setAgree] = useState(false)
+  const router = useRouter()
+  const [agree, setAgree] = useState(true)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    router.push('/dashboard')
+  }
 
   return (
     <form
       className="flex flex-col gap-5"
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={handleSubmit}
     >
-      <GoogleButton label="Sign up with Google" />
+      <div onClick={() => router.push('/dashboard')}>
+        <GoogleButton label="Sign up with Google" />
+      </div>
 
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-outline-variant" />
@@ -68,8 +77,9 @@ export function SignupForm() {
       </label>
 
       <MdButton type="submit" size="lg" className="w-full" disabled={!agree}>
-        Create account
+        Create Free DeskMate Account →
       </MdButton>
     </form>
   )
 }
+

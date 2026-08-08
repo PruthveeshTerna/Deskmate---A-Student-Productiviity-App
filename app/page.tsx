@@ -5,6 +5,7 @@ import { Features } from '@/components/landing/features'
 import { HowItWorks } from '@/components/landing/how-it-works'
 import { AiLearning } from '@/components/landing/ai-learning'
 import { WhyChoose } from '@/components/landing/why-choose'
+import { Pricing } from '@/components/landing/pricing'
 import { Testimonials } from '@/components/landing/testimonials'
 import { Faq } from '@/components/landing/faq'
 import { Cta } from '@/components/landing/cta'
@@ -19,6 +20,7 @@ export default function HomePage() {
         <HowItWorks />
         <AiLearning />
         <WhyChoose />
+        <Pricing />
         <Testimonials />
         <Faq />
         <Cta />
@@ -27,3 +29,4 @@ export default function HomePage() {
     </div>
   )
 }
+

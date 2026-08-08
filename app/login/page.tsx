@@ -4,8 +4,8 @@ import { AuthShell } from '@/components/auth/auth-shell'
 import { LoginForm } from '@/components/auth/login-form'
 
 export const metadata: Metadata = {
-  title: 'Log in · StudySync',
-  description: 'Log in to your StudySync academic workspace.',
+  title: 'Log in · DeskMate',
+  description: 'Log in to your DeskMate academic AI workspace.',
 }
 
 export default function LoginPage() {

@@ -1,32 +1,31 @@
 @import 'tailwindcss';
 
 /*
-  Material Design 3 (M3) token system.
-  Color roles follow the M3 spec: primary / secondary / tertiary with their
-  containers, neutral surfaces with tonal elevation, and outline roles.
-  Blue / purple accent palette per the brief.
+  Google Material Design 3 (M3) token system.
+  Includes full dynamic color roles, surface tonal containers, M3 elevation shadows,
+  shape scales, state layers, and expressive animations.
 */
 
 :root {
-  /* Primary — blurple */
-  --md-primary: #4a54d9;
+  /* M3 Primary — Expressive Indigo Blurple */
+  --md-primary: #4f56e9;
   --md-on-primary: #ffffff;
   --md-primary-container: #e0e0ff;
   --md-on-primary-container: #050a6b;
 
-  /* Secondary — violet */
-  --md-secondary: #6f52c9;
+  /* M3 Secondary — Violet / Lavender */
+  --md-secondary: #7454d6;
   --md-on-secondary: #ffffff;
   --md-secondary-container: #eaddff;
-  --md-on-secondary-container: #22005d;
+  --md-on-secondary-container: #250060;
 
-  /* Tertiary — rose accent */
-  --md-tertiary: #984061;
+  /* M3 Tertiary — Vibrant Rose Coral */
+  --md-tertiary: #9e3860;
   --md-on-tertiary: #ffffff;
   --md-tertiary-container: #ffd9e2;
   --md-on-tertiary-container: #3e001d;
 
-  /* Error */
+  /* M3 Error */
   --md-error: #ba1a1a;
   --md-on-error: #ffffff;
   --md-error-container: #ffdad6;
@@ -56,25 +55,24 @@
   --md-inverse-on-surface: #f2eff7;
   --md-inverse-primary: #bec2ff;
 
-  --md-shadow: 0deg 0% 0%;
-
+  --md-shadow: 230 25% 10%;
   --radius: 1rem;
 }
 
 .dark {
   --md-primary: #bec2ff;
   --md-on-primary: #0c1487;
-  --md-primary-container: #3138a8;
+  --md-primary-container: #3238ab;
   --md-on-primary-container: #e0e0ff;
 
   --md-secondary: #d5baff;
-  --md-on-secondary: #3a0f77;
-  --md-secondary-container: #56399e;
+  --md-on-secondary: #3d1480;
+  --md-secondary-container: #583ba0;
   --md-on-secondary-container: #eaddff;
 
   --md-tertiary: #ffb1c7;
-  --md-on-tertiary: #5e1133;
-  --md-tertiary-container: #7b2949;
+  --md-on-tertiary: #601235;
+  --md-tertiary-container: #7e2a4b;
   --md-on-tertiary-container: #ffd9e2;
 
   --md-error: #ffb4ab;
@@ -82,25 +80,27 @@
   --md-error-container: #93000a;
   --md-on-error-container: #ffdad6;
 
-  --md-background: #131318;
+  --md-background: #0f0f15;
   --md-on-background: #e4e1e9;
-  --md-surface: #131318;
+  --md-surface: #0f0f15;
   --md-on-surface: #e4e1e9;
   --md-surface-variant: #46464f;
   --md-on-surface-variant: #c7c5d0;
 
-  --md-surface-container-lowest: #0d0e13;
-  --md-surface-container-low: #1b1b21;
-  --md-surface-container: #1f1f25;
-  --md-surface-container-high: #2a2a30;
-  --md-surface-container-highest: #35353b;
+  --md-surface-container-lowest: #0a0a0f;
+  --md-surface-container-low: #15151c;
+  --md-surface-container: #1b1b24;
+  --md-surface-container-high: #242430;
+  --md-surface-container-highest: #2f2f3b;
 
   --md-outline: #90909a;
   --md-outline-variant: #46464f;
 
   --md-inverse-surface: #e4e1e9;
   --md-inverse-on-surface: #303036;
-  --md-inverse-primary: #4a54d9;
+  --md-inverse-primary: #4f56e9;
+
+  --md-shadow: 230 60% 2%;
 }
 
 @theme inline {
@@ -144,7 +144,7 @@
   --color-inverse-on-surface: var(--md-inverse-on-surface);
   --color-inverse-primary: var(--md-inverse-primary);
 
-  --font-sans: 'Roboto', 'Roboto Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* M3 shape scale */
   --radius-xs: 0.25rem;
@@ -160,35 +160,104 @@
   * {
     border-color: var(--color-outline-variant);
   }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-on-background);
     -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
+/* Custom M3 Animation Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes floatSmooth {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 @layer utilities {
-  /* M3 elevation shadows (light) */
+  /* Animation helper classes */
+  .animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+  }
+  .animate-float {
+    animation: floatSmooth 6s ease-in-out infinite;
+  }
+  .animate-shimmer {
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+  }
+
+  /* M3 elevation shadows */
   .md-elevation-1 {
     box-shadow:
-      0 1px 2px 0 hsl(var(--md-shadow) / 0.3),
-      0 1px 3px 1px hsl(var(--md-shadow) / 0.15);
+      0 1px 3px 0 rgba(0, 0, 0, 0.12),
+      0 1px 2px 0 rgba(0, 0, 0, 0.24);
   }
   .md-elevation-2 {
     box-shadow:
-      0 1px 2px 0 hsl(var(--md-shadow) / 0.3),
-      0 2px 6px 2px hsl(var(--md-shadow) / 0.15);
+      0 3px 6px 0 rgba(0, 0, 0, 0.16),
+      0 3px 6px 0 rgba(0, 0, 0, 0.23);
   }
   .md-elevation-3 {
     box-shadow:
-      0 4px 8px 3px hsl(var(--md-shadow) / 0.15),
-      0 1px 3px 0 hsl(var(--md-shadow) / 0.3);
+      0 10px 20px 0 rgba(0, 0, 0, 0.19),
+      0 6px 6px 0 rgba(0, 0, 0, 0.23);
+  }
+  .md-elevation-4 {
+    box-shadow:
+      0 14px 28px 0 rgba(0, 0, 0, 0.25),
+      0 10px 10px 0 rgba(0, 0, 0, 0.22);
   }
 
-  /* M3 state layer — subtle overlay on hover for interactive surfaces */
+  /* M3 Glassmorphism Cards */
+  .glass-card {
+    background-color: var(--color-surface-container);
+    background-image: radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.05) 0px, transparent 50%);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--color-outline-variant);
+  }
+  
+  .dark .glass-card {
+    background-color: rgba(27, 27, 36, 0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* M3 State Layer overlay */
   .md-state {
     position: relative;
     isolation: isolate;
+    transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1), transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1);
   }
   .md-state::after {
     content: '';
@@ -205,6 +274,33 @@
     opacity: 0.08;
   }
   .md-state:active::after {
-    opacity: 0.12;
+    opacity: 0.14;
+  }
+
+  /* 3D Card Flip helper */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Hide scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
   }
 }
+
+
