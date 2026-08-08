@@ -21,6 +21,28 @@ def create_app(config_class=Config):
     db.init_app(app)
     jwt.init_app(app)
 
+    # ---------------------------------------------------------------
+    # Health check
+    # ---------------------------------------------------------------
+    @app.route("/health")
+    def health():
+        return jsonify({
+            "status": "ok",
+            "service": "deskmate-backend"
+        }), 200
+
+    @app.route("/health/db")
+    def database_health():
+        try:
+            result = db.session.execute(text("SELECT 1"))
+            result.scalar()
+
+            return jsonify({
+                "status": "ok",
+                "sqlalchemy": "working",
+                "database": "connected"
+            }), 200
+    
     # -----------------------------------------------------------------------
     # Register blueprints
     # -----------------------------------------------------------------------
