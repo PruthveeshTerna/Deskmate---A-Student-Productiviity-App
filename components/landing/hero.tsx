@@ -33,10 +33,10 @@ export function Hero() {
             <MdLinkButton href="/signup" variant="filled" size="lg">
               Get Started
             </MdLinkButton>
-            <MdLinkButton href="#how-it-works" variant="outlined" size="lg">
+            {/* <MdLinkButton href="#how-it-works" variant="outlined" size="lg">
               <PlayCircle className="h-5 w-5" />
               Watch Demo
-            </MdLinkButton>
+            </MdLinkButton> */}
           </div>
 
           <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
