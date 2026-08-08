@@ -5,16 +5,16 @@ import { ChevronDown } from 'lucide-react'
 
 const faqs = [
   {
-    q: 'Is StudySync really free to use?',
+    q: 'Is DeskMate really free to use?',
     a: 'Yes. The Free plan includes task management, timetable, deadlines, the Pomodoro timer and a monthly allowance of AI notes — no credit card required.',
   },
   {
     q: 'How does the AI generate notes and flashcards?',
-    a: 'You provide a syllabus, topic or your own material, and StudySync structures it into clean notes, flashcards and quizzes. You can edit everything afterwards.',
+    a: 'You provide a syllabus, topic or your own material, and DeskMate structures it into clean notes, flashcards and quizzes. You can edit everything afterwards.',
   },
   {
-    q: 'Can I use StudySync on my phone?',
-    a: 'Absolutely. StudySync is fully responsive and works beautifully across phone, tablet and desktop, with your data synced in real time.',
+    q: 'Can I use DeskMate on my phone?',
+    a: 'Absolutely. DeskMate is fully responsive and works beautifully across phone, tablet and desktop, with your data synced in real time.',
   },
   {
     q: 'Is my data secure?',

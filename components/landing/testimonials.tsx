@@ -3,7 +3,7 @@ import { Star } from 'lucide-react'
 const testimonials = [
   {
     quote:
-      'StudySync replaced four different apps for me. The AI notes alone saved me hours every week before finals.',
+      'DeskMate replaced four different apps for me. The AI notes alone saved me hours every week before finals.',
     name: 'Aisha Kapoor',
     role: 'Pre-med, Year 2',
     initials: 'AK',

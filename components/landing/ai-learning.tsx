@@ -40,7 +40,7 @@ export function AiLearning() {
             Let AI do the busywork, so you can focus on learning
           </h2>
           <p className="mt-4 text-pretty leading-relaxed text-on-surface-variant">
-            StudySync&apos;s AI turns your course material into everything you
+            DeskMate&apos;s AI turns your course material into everything you
             need to master it — from clean notes to adaptive revision plans that
             evolve with you.
           </p>
